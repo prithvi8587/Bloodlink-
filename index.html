@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BloodLink</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+      @keyframes drip {
+        0% { transform: translateY(-10px); opacity: 0; }
+        50% { opacity: 1; }
+        100% { transform: translateY(10px); opacity: 0; }
+      }
+    </style>
+  </head>
+  <body class="bg-white text-gray-900">
+    <div id="root"></div><script type="text/babel">
+  const App = () => {
+    const [tab, setTab] = React.useState('home');
+    const [formData, setFormData] = React.useState({
+      name: '', holder: '', address: '', state: '', district: '', pin: '',
+      Ap: '', An: '', Bp: '', Bn: '', ABp: '', ABn: '', Op: '', On: '', Bombay: '', HH: ''
+    });
+    const [entries, setEntries] = React.useState(() => {
+      const saved = localStorage.getItem('bloodBanks');
+      return saved ? JSON.parse(saved) : [];
+    });
+
+    const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = () => {
+      const updated = [...entries, formData];
+      setEntries(updated);
+      localStorage.setItem('bloodBanks', JSON.stringify(updated));
+      alert('Blood bank registered!');
+      setFormData({
+        name: '', holder: '', address: '', state: '', district: '', pin: '',
+        Ap: '', An: '', Bp: '', Bn: '', ABp: '', ABn: '', Op: '', On: '', Bombay: '', HH: ''
+      });
+    };
+
+    const [searchState, setSearchState] = React.useState('');
+
+    const renderBloodBanks = () => {
+      const filtered = entries.filter(e => e.state.toLowerCase().includes(searchState.toLowerCase()));
+      return filtered.map((entry, idx) => (
+        <div key={idx} className="p-4 bg-white shadow rounded mb-4">
+          <h3 className="font-bold text-lg text-red-600">{entry.name} ({entry.holder})</h3>
+          <p>{entry.address}, {entry.district}, {entry.state} - {entry.pin}</p>
+          <div className="mt-2 text-sm grid grid-cols-2 gap-1">
+            <p><strong>A⁺:</strong> {entry.Ap}L | <strong>A⁻:</strong> {entry.An}L</p>
+            <p><strong>B⁺:</strong> {entry.Bp}L | <strong>B⁻:</strong> {entry.Bn}L</p>
+            <p><strong>AB⁺:</strong> {entry.ABp}L | <strong>AB⁻:</strong> {entry.ABn}L</p>
+            <p><strong>O⁺:</strong> {entry.Op}L | <strong>O⁻:</strong> {entry.On}L</p>
+            <p><strong>Bombay:</strong> {entry.Bombay}L | <strong>HH:</strong> {entry.HH}L</p>
+          </div>
+        </div>
+      ));
+    };
+
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold text-red-600 mb-1">🩸 BloodLink</h1>
+          <p className="text-gray-700">Connecting Lives. Saving Lives.</p>
+          <div className="mt-4 space-x-2">
+            <button onClick={() => setTab('home')} className={`py-2 px-4 rounded ${tab === 'home' ? 'bg-red-500 text-white' : 'bg-red-100'}`}>Home</button>
+            <button onClick={() => setTab('register')} className={`py-2 px-4 rounded ${tab === 'register' ? 'bg-blue-500 text-white' : 'bg-blue-100'}`}>Register Bank</button>
+            <button onClick={() => setTab('seek')} className={`py-2 px-4 rounded ${tab === 'seek' ? 'bg-green-500 text-white' : 'bg-green-100'}`}>Blood Seeker</button>
+          </div>
+        </div>
+
+        {tab === 'home' && (
+          <div>
+            <div className="bg-gradient-to-br from-red-400 via-red-500 to-red-600 p-6 text-white rounded-lg mb-6 shadow">
+              <h2 className="text-2xl font-bold mb-2">Our Mission</h2>
+              <p>To solve India's blood bank crisis with real-time availability and access.</p>
+            </div>
+            <div className="bg-blue-100 p-4 rounded shadow mb-6">
+              <h2 className="text-xl font-bold text-blue-700 mb-2">Our Services</h2>
+              <ul className="list-disc list-inside">
+                <li>Register hospitals & blood banks with full info</li>
+                <li>Live search of available blood stock</li>
+                <li>State-wise blood seeker access</li>
+              </ul>
+            </div>
+            <div className="relative h-40 overflow-hidden">
+              {[...Array(10)].map((_, i) => (
+                <div key={i} className="absolute animate-bounce bg-red-300 rounded-full" style={{ width: 20 + i * 2 + 'px', height: 20 + i * 2 + 'px', top: Math.random() * 150 + 'px', left: Math.random() * 300 + 'px', animationDelay: `${i * 0.3}s` }}></div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'register' && (
+          <div className="bg-white p-6 shadow rounded">
+            <h2 className="text-xl font-semibold text-red-600 mb-4">Register Blood Bank</h2>
+            <input name="name" value={formData.name} onChange={handleChange} placeholder="Organization Name" className={inputClass} />
+            <input name="holder" value={formData.holder} onChange={handleChange} placeholder="Holder Name" className={inputClass} />
+            <input name="address" value={formData.address} onChange={handleChange} placeholder="Address" className={inputClass} />
+            <input name="state" value={formData.state} onChange={handleChange} placeholder="State" className={inputClass} />
+            <input name="district" value={formData.district} onChange={handleChange} placeholder="District" className={inputClass} />
+            <input name="pin" value={formData.pin} onChange={handleChange} placeholder="Pin Code" className={inputClass} />
+            <div className="grid grid-cols-2 gap-2">
+              <input name="Ap" value={formData.Ap} onChange={handleChange} placeholder="A⁺ (litres)" className={inputClass} />
+              <input name="An" value={formData.An} onChange={handleChange} placeholder="A⁻ (litres)" className={inputClass} />
+              <input name="Bp" value={formData.Bp} onChange={handleChange} placeholder="B⁺ (litres)" className={inputClass} />
+              <input name="Bn" value={formData.Bn} onChange={handleChange} placeholder="B⁻ (litres)" className={inputClass} />
+              <input name="ABp" value={formData.ABp} onChange={handleChange} placeholder="AB⁺ (litres)" className={inputClass} />
+              <input name="ABn" value={formData.ABn} onChange={handleChange} placeholder="AB⁻ (litres)" className={inputClass} />
+              <input name="Op" value={formData.Op} onChange={handleChange} placeholder="O⁺ (litres)" className={inputClass} />
+              <input name="On" value={formData.On} onChange={handleChange} placeholder="O⁻ (litres)" className={inputClass} />
+              <input name="Bombay" value={formData.Bombay} onChange={handleChange} placeholder="Bombay (litres)" className={inputClass} />
+              <input name="HH" value={formData.HH} onChange={handleChange} placeholder="HH (litres)" className={inputClass} />
+            </div>
+            <button onClick={handleSubmit} className="mt-4 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">Submit</button>
+          </div>
+        )}
+
+        {tab === 'seek' && (
+          <div className="bg-white p-6 shadow rounded">
+            <h2 className="text-xl font-semibold text-green-600 mb-4">Search Blood Banks</h2>
+            <input value={searchState} onChange={(e) => setSearchState(e.target.value)} placeholder="Enter State to Search" className={inputClass + " mb-4"} />
+            {renderBloodBanks()}
+          </div>
+        )}
+
+        <footer className="text-center text-sm text-gray-500 mt-10">
+          Made by <strong>Prithvi Gupta</strong>, Soami Nagar Model School
+        </footer>
+      </div>
+    );
+  };
+
+  const inputClass = "block w-full border p-2 rounded mb-2";
+  const root = document.getElementById('root');
+  ReactDOM.render(<App />, root);
+</script>
+
+  </body>
+</html>
